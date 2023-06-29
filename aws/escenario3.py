@@ -1,4 +1,5 @@
 import boto3
+from diccionario import jenkins
 
 def imprimirtabla(tabla):
    for item in tabla['Item']:
@@ -9,28 +10,36 @@ def consultar(tabla, correo):
    dynamodb = boto3.resource('dynamodb')
    table = dynamodb.Table(tabla)
    response = table.get_item(
-      Key={'email':correo}
+      Key={
+         'email':correo
+      }
    )
    imprimirtabla(response)
 
-def actualizar_por_correo(tabla, correo, newval):
+def actualizar_por_correo(tabla, correo, key, newval):
    dynamodb = boto3.resource('dynamodb')
-   table = dynamodb.Table(tabla)
+   new_var = tabla
+   table = dynamodb.Table(new_var)   
    response = table.update_item(
-       Key={'email':correo},
-       UpdateExpression='SET surname = :valor',
-       ExpressionAttributeValues={':valor': newval}
+      Key={
+          'email':correo
+      },
+      ExpressionAttributeValues={
+         ':valor': newval
+      },
+      ExpressionAttributeNames={
+        '#llave': key
+        },
+      UpdateExpression='SET #llave = :valor'   
    )
-   print(response)
 
 def main():
-   tabla="user"
-   correo = "correo@dominio.com"
-   newval="Lopez Perez"
-   consultar(tabla, correo)
-   actualizar_por_correo(tabla, correo, newval)
-   consultar(tabla, correo)
-
+   for tabla, correos in jenkins.items():
+      for correo, cambios in correos.items():
+         for llave, valor in cambios.items():
+            print(f"{tabla} {correo} {llave} {valor}")
+            actualizar_por_correo(tabla, correo, llave, valor)
+            consultar(tabla, correo)
 
 if __name__ == '__main__':
    main()
