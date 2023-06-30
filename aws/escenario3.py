@@ -1,7 +1,7 @@
 import boto3
 from diccionario import jenkins
 
-def imprimirtabla(tabla):
+def imprimir_tabla(tabla):
    for item in tabla['Item']:
       value = tabla['Item'][item]
       print(f"{item}:{value}")
@@ -14,7 +14,7 @@ def consultar(tabla, correo):
          'email':correo
       }
    )
-   imprimirtabla(response)
+   imprimir_tabla(response)
 
 def actualizar_por_correo(tabla, correo, key, newval):
    dynamodb = boto3.resource('dynamodb')
@@ -29,7 +29,7 @@ def actualizar_por_correo(tabla, correo, key, newval):
       },
       ExpressionAttributeNames={
         '#llave': key
-        },
+      },
       UpdateExpression='SET #llave = :valor'   
    )
 
